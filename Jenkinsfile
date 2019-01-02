@@ -1,14 +1,15 @@
 #!/usr/bin/env groovy
 
 pipeline {
-    agent any 
+    agent {
+     label 'android-worker'
+    }
 
     environment {
             PIPELINE_JOBS_NAME = 'edx-app-android-pipeline'
             ANDROID_HOME = '/opt/android-sdk-linux'
-            WORKSPACE = "/var/lib/jenkins/workspace/$PIPELINE_JOBS_NAME"            
             EDX_PROPERTIES = './OpenEdXMobile/edx.properties'
-            APK_PATH = "$WORKSPACE/OpenEdXMobile/build/outputs/apk/prod/debuggable"
+            APK_PATH = 'OpenEdXMobile/build/outputs/apk/prod/debuggable'
     }       
 
     stages {
@@ -16,7 +17,7 @@ pipeline {
         stage('create required file '){
            steps {
                touch file: '$EDX_PROPERTIES'
-               writeFile file: '$EDX_PROPERTIES', text: 'edx.dir = \'../../edx-mobile-config/prod/\''           
+               writeFile file: '$EDX_PROPERTIES', text: 'edx.dir = \'../../edx-mobile-config/prod/\''     
                } 
         }
         stage('compiling edx-app-android') {
@@ -31,7 +32,7 @@ pipeline {
         }
         stage('archive the build') {
             steps {
-                archiveArtifacts artifacts: 'OpenEdXMobile/build/outputs/apk/prod/debuggable/*.apk', onlyIfSuccessful: true
+                archiveArtifacts artifacts: "$APK_PATH/*.apk", onlyIfSuccessful: true
             }
         }
     }

@@ -4,17 +4,27 @@ set -e
 
 # validated if created build is debug build 
 cd $APK_PATH
-
-APK_NAME=""
 EXPECTED_FLAG='application-debuggable'
+APK_NAME=''
 
-for file in *.apk
-do
-  APK_NAME=$file  
+for file in *
+do 
+  name=$(echo $file| tail -c 4)
+  if [ $name = 'apk' ]
+  then     
+     echo "Found $file" 
+     APK_NAME=$file
+     break
+  else 
+     echo "Unable to find apk in given directory" 
+  fi
 done
 
 DEBUGGABLE=`$ANDROID_HOME/build-tools/27.0.3/aapt dump badging $APK_NAME |grep $EXPECTED_FLAG`
-if [ $DEBUGGABLE = $EXPECTED_FLAG ]
-   then
-    echo "Build is debuggable"
+if [ $? == 0 ]; then
+   echo "The build is debuggable"
+   exit 0
+else
+   echo "The build is not debuggable"
+   exit 1
 fi
